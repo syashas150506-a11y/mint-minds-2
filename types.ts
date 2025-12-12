@@ -30,6 +30,7 @@ export interface User {
   financialData?: FinancialData;
   goals?: string[];
   watchlist?: string[]; // Array of stock symbols
+  savingsJarBalance?: number; // New field for Savings Jar
 }
 
 export interface CountryData {

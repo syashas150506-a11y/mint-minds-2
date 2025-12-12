@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { userService } from '../../services/userService';
 import { User } from '../../types';
-import { LogOut, Search, Users, Download, Eye, TrendingUp, ShieldCheck, Database, Calendar } from 'lucide-react';
+import { LogOut, Search, Users, Download, Eye, TrendingUp, ShieldCheck, Database, Calendar, PiggyBank } from 'lucide-react';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -156,8 +156,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                                         <td className="p-4">
                                             {user.financialData ? (
                                                 <div className="text-xs space-y-1">
-                                                    <div className="text-slate-300">Inc: ₹{user.financialData.monthlyIncome}</div>
-                                                    <div className="text-slate-500">Sav: ₹{user.financialData.monthlySavings}</div>
+                                                    <div className="text-slate-300">Inc: ₹{user.financialData.monthlyIncome.toLocaleString()}</div>
+                                                    <div className="text-slate-500">Sav: ₹{user.financialData.monthlySavings.toLocaleString()}</div>
+                                                    {/* Added Jar Balance Display */}
+                                                    <div className="text-amber-400 font-bold flex items-center gap-1">
+                                                        <PiggyBank size={12} />
+                                                        Jar: ₹{(user.savingsJarBalance || 0).toLocaleString()}
+                                                    </div>
                                                 </div>
                                             ) : (
                                                 <span className="text-slate-600 text-xs">-</span>

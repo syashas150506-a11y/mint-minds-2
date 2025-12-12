@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { Input } from '../UI/Input';
-import { Brain, Loader2 } from 'lucide-react';
+import { Brain, Loader2, RotateCcw, Code2 } from 'lucide-react';
 import { User } from '../../types';
 import { userService } from '../../services/userService';
 
@@ -29,6 +30,18 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onGoToSignup }) => {
     } finally {
         setIsLoading(false);
     }
+  };
+
+  const handleResetData = () => {
+    if (window.confirm('Are you sure you want to clear all user data? This cannot be undone.')) {
+        localStorage.removeItem('wealthwaves_users');
+        window.location.reload();
+    }
+  };
+
+  const fillCredentials = (u: string, p: string) => {
+      setIdentifier(u);
+      setPassword(p);
   };
 
   return (
@@ -77,6 +90,36 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onGoToSignup }) => {
         >
           Create Account
         </button>
+      </div>
+
+      {/* Developer Shortcuts */}
+      <div className="mt-8 w-full border-t border-slate-200 pt-4">
+          <div className="flex justify-between items-center mb-2">
+              <span className="text-xs font-bold text-slate-400 flex items-center gap-1"><Code2 size={12} /> DEV TOOLS</span>
+              <button 
+                onClick={handleResetData}
+                className="text-xs text-rose-500 hover:text-rose-700 flex items-center gap-1 transition-colors"
+                title="Clear all stored users"
+              >
+                <RotateCcw size={12} /> Reset Data
+              </button>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+              <button 
+                  onClick={() => fillCredentials('demo', 'demo')}
+                  className="p-2 bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-200 rounded-lg text-xs text-left transition-colors group"
+              >
+                  <div className="font-bold text-slate-700 group-hover:text-emerald-700">Demo User</div>
+                  <div className="text-slate-400 text-[10px]">Skip Onboarding</div>
+              </button>
+              <button 
+                  onClick={() => fillCredentials('admin', 'admin')}
+                  className="p-2 bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 rounded-lg text-xs text-left transition-colors group"
+              >
+                  <div className="font-bold text-slate-700 group-hover:text-indigo-700">Admin</div>
+                  <div className="text-slate-400 text-[10px]">Owner Panel</div>
+              </button>
+          </div>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 import { Transaction } from "../types";
 
@@ -118,5 +119,82 @@ export const getAdvisorChatResponse = async (
   } catch (error) {
     console.error("Gemini API Error:", error);
     return "I am currently offline. Please try again later.";
+  }
+};
+
+export const getMutualFundAnalysis = async (fundCategory: string): Promise<string> => {
+    if (!apiKey) return "API key missing.";
+
+    const prompt = `
+      Analyze the "${fundCategory}" Mutual Fund category for an Indian investor.
+      
+      Provide a brief 3-point summary in Markdown covering:
+      1. Who should invest? (Risk profile/Time horizon)
+      2. Average expected returns (Historic ballpark)
+      3. Key risks to be aware of.
+
+      Keep it very concise (max 100 words).
+    `;
+
+    try {
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: prompt,
+        });
+        return response.text || "Analysis unavailable.";
+    } catch (error) {
+        console.error("Gemini MF Analysis Error", error);
+        return "Could not analyze fund category.";
+    }
+};
+
+export const generatePortfolio = async (
+  amount: string,
+  duration: string,
+  returnRate: string
+): Promise<string> => {
+  if (!apiKey) return "API Key is missing.";
+
+  const prompt = `
+    You are an expert AI Portfolio Manager for the Indian Stock Market.
+    
+    Client Profile:
+    - Investment Amount: ₹${amount}
+    - Investment Horizon: ${duration} Years
+    - Target Annual Return: ${returnRate}%
+
+    Task:
+    Create a detailed stock portfolio allocation plan using stocks listed on NSE/BSE.
+    
+    Guidelines:
+    1. Select 5-8 specific Indian stocks that align with the risk profile required to achieve ${returnRate}% annual return.
+    2. If the return expectation is high (>18%), focus more on Mid/Small caps. If conservative (<12%), focus on Large caps.
+    3. Calculate the approximate amount to invest in each stock based on the total ₹${amount}.
+    
+    Output Format (Markdown):
+    ### 🎯 Strategy Overview
+    [1-2 sentences on the strategy type, e.g., "Aggressive Growth", "Balanced Value", "Dividend Yield"]
+
+    ### 📊 Recommended Allocation
+    | Stock | Sector | Allocation % | Amount (₹) | Rationale |
+    |---|---|---|---|---|
+    | [Ticker] | [Sector] | [XX%] | [₹XXXX] | [Brief Reason] |
+    
+    ### 💡 Execution Tips
+    *   [Tip 1]
+    *   [Tip 2]
+
+    *Disclaimer: This is AI-generated advice for educational purposes. Consult a SEBI registered advisor before investing.*
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+    });
+    return response.text || "Could not generate portfolio strategy.";
+  } catch (error) {
+    console.error("Gemini Portfolio Error:", error);
+    return "Service temporarily unavailable.";
   }
 };

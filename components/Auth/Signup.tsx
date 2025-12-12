@@ -280,7 +280,16 @@ export const Signup: React.FC<SignupProps> = ({ onSignup, onBack }) => {
           </div>
         </div>
 
-        {errors.general && <div className="text-red-500 text-sm text-center font-medium">{errors.general}</div>}
+        {errors.general && (
+            <div className="text-red-500 text-sm text-center font-medium bg-red-50 p-2 rounded-lg">
+                {errors.general}
+                {errors.general.includes('exists') && (
+                    <button onClick={onBack} className="block w-full mt-1 text-red-700 underline font-bold">
+                        Back to Login
+                    </button>
+                )}
+            </div>
+        )}
 
         <button
           type="submit"

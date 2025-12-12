@@ -1,3 +1,4 @@
+
 import { CountryData, Transaction } from './types';
 
 export const SAVING_GOALS = [
@@ -20,6 +21,87 @@ export const ECONOMIC_NEWS = [
   { id: 4, title: "Oil Prices Stabilize Amidst Supply Chain Adjustments", source: "WSJ", time: "6h ago", url: "https://www.wsj.com" },
   { id: 5, title: "Emerging Markets Show Resilience Against Dollar Strength", source: "CNBC", time: "8h ago", url: "https://www.cnbc.com" },
   { id: 6, title: "Cryptocurrency Regulation Talks Heat Up in G20 Summit", source: "Coindesk", time: "10h ago", url: "https://www.coindesk.com" },
+];
+
+// Helper to get current month dates for mock data
+const getCurrentMonthDates = () => {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    return {
+        d1: `${y}-${m}-01`,
+        d2: `${y}-${m}-02`,
+        d3: `${y}-${m}-03`,
+        d5: `${y}-${m}-05`,
+        d10: `${y}-${m}-10`,
+        d12: `${y}-${m}-12`,
+    }
+}
+const dates = getCurrentMonthDates();
+
+export const MOCK_TRANSACTIONS: Transaction[] = [
+  { id: '1', amount: 5000, category: 'Salary', date: dates.d1, type: 'income', description: 'Monthly Salary' },
+  { id: '2', amount: 120, category: 'Food', date: dates.d2, type: 'expense', description: 'Grocery Store' },
+  { id: '3', amount: 45, category: 'Transport', date: dates.d3, type: 'expense', description: 'Uber Ride' },
+  { id: '4', amount: 200, category: 'Utilities', date: dates.d5, type: 'expense', description: 'Electric Bill' },
+  { id: '5', amount: 1500, category: 'Freelance', date: dates.d10, type: 'income', description: 'Web Design Project' },
+  { id: '6', amount: 80, category: 'Entertainment', date: dates.d12, type: 'expense', description: 'Cinema & Snacks' },
+];
+
+// Large List of Indian Stocks
+export const ALL_STOCKS = [
+    { symbol: 'RELIANCE', name: 'Reliance Industries Ltd.', price: 2985.40, change: 1.25, isUp: true, market: 'NSE' },
+    { symbol: 'TCS', name: 'Tata Consultancy Services', price: 4120.65, change: -0.85, isUp: false, market: 'NSE' },
+    { symbol: 'HDFCBANK', name: 'HDFC Bank Ltd.', price: 1540.30, change: 0.50, isUp: true, market: 'NSE' },
+    { symbol: 'ICICIBANK', name: 'ICICI Bank Ltd.', price: 1085.10, change: 1.10, isUp: true, market: 'NSE' },
+    { symbol: 'INFY', name: 'Infosys Limited', price: 1490.25, change: -1.20, isUp: false, market: 'NSE' },
+    { symbol: 'BHARTIARTL', name: 'Bharti Airtel Ltd.', price: 1210.50, change: 0.95, isUp: true, market: 'NSE' },
+    { symbol: 'SBIN', name: 'State Bank of India', price: 760.40, change: 2.10, isUp: true, market: 'NSE' },
+    { symbol: 'HINDUNILVR', name: 'Hindustan Unilever Ltd.', price: 2350.75, change: -0.45, isUp: false, market: 'NSE' },
+    { symbol: 'ITC', name: 'ITC Limited', price: 435.20, change: 0.30, isUp: true, market: 'NSE' },
+    { symbol: 'LT', name: 'Larsen & Toubro Ltd.', price: 3650.00, change: 1.50, isUp: true, market: 'NSE' },
+    { symbol: 'BAJFINANCE', name: 'Bajaj Finance Ltd.', price: 6850.30, change: -1.10, isUp: false, market: 'NSE' },
+    { symbol: 'KOTAKBANK', name: 'Kotak Mahindra Bank', price: 1780.90, change: 0.20, isUp: true, market: 'NSE' },
+    { symbol: 'AXISBANK', name: 'Axis Bank Ltd.', price: 1050.60, change: 0.80, isUp: true, market: 'NSE' },
+    { symbol: 'HCLTECH', name: 'HCL Technologies', price: 1560.40, change: -0.90, isUp: false, market: 'NSE' },
+    { symbol: 'TITAN', name: 'Titan Company Ltd.', price: 3580.10, change: 1.80, isUp: true, market: 'NSE' },
+    { symbol: 'ASIANPAINT', name: 'Asian Paints Ltd.', price: 2850.55, change: -0.60, isUp: false, market: 'NSE' },
+    { symbol: 'SUNPHARMA', name: 'Sun Pharmaceutical', price: 1620.30, change: 0.75, isUp: true, market: 'NSE' },
+    { symbol: 'MARUTI', name: 'Maruti Suzuki India', price: 12450.00, change: 1.40, isUp: true, market: 'NSE' },
+    { symbol: 'ULTRACEMCO', name: 'UltraTech Cement', price: 9850.20, change: 0.65, isUp: true, market: 'NSE' },
+    { symbol: 'TATASTEEL', name: 'Tata Steel Ltd.', price: 165.40, change: 2.50, isUp: true, market: 'NSE' },
+    { symbol: 'NTPC', name: 'NTPC Limited', price: 345.60, change: 1.15, isUp: true, market: 'NSE' },
+    { symbol: 'POWERGRID', name: 'Power Grid Corp', price: 285.90, change: 0.90, isUp: true, market: 'NSE' },
+    { symbol: 'WIPRO', name: 'Wipro Limited', price: 485.30, change: -1.50, isUp: false, market: 'NSE' },
+    { symbol: 'M&M', name: 'Mahindra & Mahindra', price: 2150.80, change: 1.95, isUp: true, market: 'NSE' },
+    { symbol: 'ADANIENT', name: 'Adani Enterprises', price: 3120.50, change: -2.30, isUp: false, market: 'NSE' },
+    { symbol: 'ADANIGREEN', name: 'Adani Green Energy', price: 1850.40, change: -1.80, isUp: false, market: 'NSE' },
+    { symbol: 'COALINDIA', name: 'Coal India Ltd.', price: 450.25, change: 1.20, isUp: true, market: 'NSE' },
+    { symbol: 'ONGC', name: 'ONGC', price: 275.60, change: 0.85, isUp: true, market: 'NSE' },
+    { symbol: 'TATAMOTORS', name: 'Tata Motors Ltd.', price: 980.50, change: 1.65, isUp: true, market: 'NSE' },
+    { symbol: 'JSWSTEEL', name: 'JSW Steel Ltd.', price: 860.30, change: 0.40, isUp: true, market: 'NSE' },
+    { symbol: 'GRASIM', name: 'Grasim Industries', price: 2250.10, change: -0.30, isUp: false, market: 'NSE' },
+    { symbol: 'CIPLA', name: 'Cipla Ltd.', price: 1420.80, change: 0.55, isUp: true, market: 'NSE' },
+    { symbol: 'PIDILITIND', name: 'Pidilite Industries', price: 2950.40, change: -0.70, isUp: false, market: 'NSE' },
+    { symbol: 'NESTLEIND', name: 'Nestle India Ltd.', price: 2540.60, change: -0.20, isUp: false, market: 'NSE' },
+    { symbol: 'SBILIFE', name: 'SBI Life Insurance', price: 1480.90, change: 0.90, isUp: true, market: 'NSE' },
+    { symbol: 'BRITANNIA', name: 'Britannia Industries', price: 4950.30, change: -0.50, isUp: false, market: 'NSE' },
+    { symbol: 'TECHM', name: 'Tech Mahindra Ltd.', price: 1250.60, change: -1.10, isUp: false, market: 'NSE' },
+    { symbol: 'HINDALCO', name: 'Hindalco Industries', price: 620.40, change: 1.30, isUp: true, market: 'NSE' },
+    { symbol: 'EICHERMOT', name: 'Eicher Motors', price: 4560.20, change: 1.70, isUp: true, market: 'NSE' },
+    { symbol: 'DRREDDY', name: 'Dr. Reddys Labs', price: 6150.50, change: 0.40, isUp: true, market: 'NSE' },
+    { symbol: 'TATACONSUM', name: 'Tata Consumer', price: 1120.80, change: -0.60, isUp: false, market: 'NSE' },
+    { symbol: 'DIVISLAB', name: 'Divis Laboratories', price: 3850.90, change: 0.25, isUp: true, market: 'NSE' },
+    { symbol: 'BPCL', name: 'BPCL', price: 630.50, change: 1.05, isUp: true, market: 'NSE' },
+    { symbol: 'APOLLOHOSP', name: 'Apollo Hospitals', price: 6450.20, change: 0.80, isUp: true, market: 'NSE' },
+    { symbol: 'BAJAJ-AUTO', name: 'Bajaj Auto Ltd.', price: 8950.60, change: 1.55, isUp: true, market: 'NSE' },
+    { symbol: 'HEROMOTOCO', name: 'Hero MotoCorp', price: 4650.30, change: 0.95, isUp: true, market: 'NSE' },
+    { symbol: 'BEL', name: 'Bharat Electronics', price: 215.40, change: 2.80, isUp: true, market: 'NSE' },
+    { symbol: 'IRFC', name: 'IRFC', price: 145.60, change: 1.90, isUp: true, market: 'NSE' },
+    { symbol: 'ZOMATO', name: 'Zomato Ltd.', price: 185.30, change: 3.20, isUp: true, market: 'NSE' },
+    { symbol: 'PAYTM', name: 'One 97 Communications', price: 380.50, change: -1.50, isUp: false, market: 'NSE' },
+    { symbol: 'YESBANK', name: 'Yes Bank Ltd.', price: 24.50, change: 0.40, isUp: true, market: 'NSE' },
+    { symbol: 'IDEA', name: 'Vodafone Idea', price: 13.20, change: -2.10, isUp: false, market: 'NSE' },
 ];
 
 // A comprehensive list covering ~195 countries/territories
@@ -243,11 +325,164 @@ export const PROFESSIONS = [
   "Other"
 ];
 
-export const MOCK_TRANSACTIONS: Transaction[] = [
-  { id: '1', amount: 5000, category: 'Salary', date: '2023-10-01', type: 'income', description: 'Monthly Salary' },
-  { id: '2', amount: 120, category: 'Food', date: '2023-10-02', type: 'expense', description: 'Grocery Store' },
-  { id: '3', amount: 45, category: 'Transport', date: '2023-10-03', type: 'expense', description: 'Uber Ride' },
-  { id: '4', amount: 200, category: 'Utilities', date: '2023-10-05', type: 'expense', description: 'Electric Bill' },
-  { id: '5', amount: 1500, category: 'Freelance', date: '2023-10-10', type: 'income', description: 'Web Design Project' },
-  { id: '6', amount: 80, category: 'Entertainment', date: '2023-10-12', type: 'expense', description: 'Cinema & Snacks' },
+export const GOVT_SCHEMES = [
+  {
+    id: 'udyam',
+    title: 'Udyam Registration',
+    category: 'Business',
+    description: 'Official zero-cost registration for Micro, Small and Medium Enterprises (MSME).',
+    link: 'https://udyamregistration.gov.in/',
+    details: {
+      overview: 'Udyam Registration is the new process of MSME/UDYOG AADHAAR Registration launched by the Ministry of MSME effective from July 1, 2020.',
+      eligibility: [
+        'Any person who intends to establish a micro, small or medium enterprise.',
+        'Existing enterprises require re-registration.',
+      ],
+      documents: [
+        'Aadhaar Number',
+        'PAN Card',
+        'GST Number (if applicable)',
+        'Bank Account Details'
+      ],
+      process: [
+        'Visit the Udyam Registration portal.',
+        'Enter Aadhaar number and name.',
+        'Validate via OTP.',
+        'Fill enterprise details and submit.'
+      ]
+    }
+  },
+  {
+    id: 'nps',
+    title: 'National Pension System (NPS)',
+    category: 'Retirement',
+    description: 'A voluntary, long-term retirement savings scheme designed to enable systematic savings.',
+    link: 'https://enps.nsdl.com/eNPS/NationalPensionSystem.html',
+    details: {
+      overview: 'NPS is a market-linked retirement savings scheme regulated by PFRDA. It offers tax benefits under Section 80CCD and is portable across jobs.',
+      eligibility: [
+        'Citizen of India (Resident or Non-Resident).',
+        'Age between 18 - 70 years.',
+        'Must comply with KYC norms.'
+      ],
+      documents: [
+        'Aadhaar Card / PAN Card',
+        'Bank Account Details',
+        'Scanned Photograph & Signature'
+      ],
+      process: [
+        'Visit the eNPS portal.',
+        'Register using Aadhaar or PAN.',
+        'Select PFM (Pension Fund Manager) and Investment Mode.',
+        'Make initial contribution (Min ₹500).'
+      ]
+    }
+  },
+  {
+    id: 'scholarship',
+    title: 'National Scholarship Portal',
+    category: 'Education',
+    description: 'One-stop solution for various Government scholarships for students.',
+    link: 'https://scholarships.gov.in/',
+    details: {
+      overview: 'The National Scholarship Portal (NSP) creates a transparent database of scholars and ensures direct benefit transfer of scholarships.',
+      eligibility: [
+        'Students from Class 1 to Ph.D. level.',
+        'Specific criteria vary by scheme (Merit-based, Means-based, Minority, etc.).',
+        'Family income ceilings apply for most schemes.'
+      ],
+      documents: [
+        'Educational Certificates',
+        'Income Certificate',
+        'Caste Certificate (if applicable)',
+        'Bank Account Passbook',
+        'Aadhaar Card'
+      ],
+      process: [
+        'Register on NSP as a new user.',
+        'Fill the Common Application Form.',
+        'Upload scanned copies of documents.',
+        'Submit and take a printout for the institution.'
+      ]
+    }
+  },
+  {
+    id: 'epf',
+    title: 'Employees\' Provident Fund (EPF)',
+    category: 'Employment',
+    description: 'Retirement benefit scheme for salaried employees.',
+    link: 'https://www.epfindia.gov.in/',
+    details: {
+      overview: 'EPF is a mandatory contribution scheme for organizations with 20+ employees. 12% of basic salary + DA is contributed by employee and employer.',
+      eligibility: [
+        'Salaried employees in covered establishments.',
+        'Basic pay up to ₹15,000/month (Auto-enrolled).',
+        'Voluntary coverage for higher income.'
+      ],
+      documents: [
+        'UAN (Universal Account Number)',
+        'Aadhaar linked to UAN',
+        'Bank Account Details',
+        'PAN Card'
+      ],
+      process: [
+        'Employer generates UAN.',
+        'Employee activates UAN on Member Portal.',
+        'Complete KYC online.',
+        'Add nomination details.'
+      ]
+    }
+  },
+  {
+    id: 'apy',
+    title: 'Atal Pension Yojana (APY)',
+    category: 'Social Security',
+    description: 'Pension scheme for workers in the unorganized sector.',
+    link: 'https://npscra.nsdl.co.in/scheme-details.php',
+    details: {
+      overview: 'APY provides a guaranteed minimum monthly pension of ₹1000 to ₹5000 at the age of 60 years.',
+      eligibility: [
+        'Indian Citizen.',
+        'Age between 18 - 40 years.',
+        'Should have a savings bank account.'
+      ],
+      documents: [
+        'Aadhaar Card',
+        'Active Bank Account',
+        'Mobile Number'
+      ],
+      process: [
+        'Visit your bank branch or use Netbanking.',
+        'Fill APY registration form.',
+        'Authorize auto-debit for contributions.',
+        'Receive PRAN (Permanent Retirement Account Number).'
+      ]
+    }
+  },
+  {
+    id: 'ssy',
+    title: 'Sukanya Samriddhi Yojana',
+    category: 'Girl Child',
+    description: 'Small deposit scheme for the girl child.',
+    link: 'https://www.indiapost.gov.in/Financial/Pages/Content/Sukanya-Samriddhi-Account.aspx',
+    details: {
+      overview: 'SSY is a government-backed savings scheme to secure the future of a girl child, offering high interest rates and tax benefits.',
+      eligibility: [
+        'Parent/Guardian of a girl child.',
+        'Child age below 10 years.',
+        'Max 2 accounts per family (one per girl).'
+      ],
+      documents: [
+        'Birth Certificate of Girl Child',
+        'KYC of Parent/Guardian (Aadhaar/PAN)',
+        'Address Proof'
+      ],
+      process: [
+        'Visit Post Office or authorized Bank.',
+        'Fill account opening form.',
+        'Deposit initial amount (Min ₹250).',
+        'Passbook is issued.'
+      ]
+    }
+  }
 ];

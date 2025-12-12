@@ -1,3 +1,4 @@
+
 import { User } from '../types';
 
 const STORAGE_KEY = 'wealthwaves_users';
@@ -10,7 +11,8 @@ export const userService = {
     const users = this._getStoredUsers();
     
     // Check for duplicates
-    if (users.some(u => u.email === user.email || u.mobile === user.mobile)) {
+    // Checks email AND (mobile + countryCode) combination to prevent false positives on mobile numbers across countries
+    if (users.some(u => u.email === user.email || (u.mobile === user.mobile && u.countryCode === user.countryCode))) {
       throw new Error('User already exists with this email or mobile.');
     }
     
@@ -18,7 +20,8 @@ export const userService = {
         ...user, 
         id: crypto.randomUUID(), 
         createdAt: new Date().toISOString(),
-        isAdmin: false
+        isAdmin: false,
+        savingsJarBalance: 0 // Initialize Savings Jar
     };
     
     users.push(newUser);
@@ -47,6 +50,35 @@ export const userService = {
         } as User;
     }
 
+    // Hardcoded Demo User (Bypass Onboarding for Dev/Testing)
+    if (identifier === 'demo' && password === 'demo') {
+        return {
+            id: 'demo-001',
+            name: 'Demo User',
+            email: 'demo@wealthwaves.com',
+            mobile: '9876543210',
+            countryCode: '+91',
+            dob: '1995-05-15',
+            age: 29,
+            gender: 'Male',
+            profession: 'Software Developer',
+            isAdmin: false,
+            createdAt: new Date().toISOString(),
+            savingsJarBalance: 25000,
+            bankDetails: {
+                bankName: 'HDFC Bank',
+                accountNumber: 'XXXX1234',
+                ifsc: 'HDFC0001234'
+            },
+            financialData: {
+                monthlyIncome: 85000,
+                monthlyExpenses: 35000,
+                monthlySavings: 50000
+            },
+            goals: ['home', 'travel', 'investment']
+        } as User;
+    }
+
     const users = this._getStoredUsers();
     const user = users.find(u => 
       (u.email === identifier || u.mobile === identifier) && u.password === password
@@ -67,6 +99,14 @@ export const userService = {
     users[index] = updatedUser;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
     return updatedUser;
+  },
+
+  // Get specific savings jar balance
+  async getSavingsJarBalance(email: string): Promise<number> {
+    await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
+    const users = this._getStoredUsers();
+    const user = users.find(u => u.email === email);
+    return user?.savingsJarBalance || 0;
   },
 
   // Simulate fetching all users (Admin only)

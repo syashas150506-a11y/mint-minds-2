@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import { 
   Pencil, Save, AlertTriangle, CheckCircle2, Calculator, TrendingDown, Wallet, X,
-  ShoppingBag, Zap, Coffee, Car, Film
+  ShoppingBag, Zap, Coffee, Car, Film, ChevronLeft, ChevronRight, RotateCcw
 } from 'lucide-react';
 
 interface BudgetSectionProps {
@@ -27,33 +27,53 @@ const DEFAULT_BUDGETS: CategoryBudget[] = [
 ];
 
 export const BudgetSection: React.FC<BudgetSectionProps> = ({ transactions }) => {
+    const [currentDate, setCurrentDate] = useState(new Date());
     const [budgets, setBudgets] = useState<CategoryBudget[]>(DEFAULT_BUDGETS);
     const [editingCategory, setEditingCategory] = useState<string | null>(null);
     const [editValue, setEditValue] = useState<string>('');
 
-    // Calculate actual spending per category from transactions
-    const spendingData = useMemo(() => {
+    // --- Period Handlers ---
+    const prevMonth = () => {
+        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+    };
+
+    const nextMonth = () => {
+        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+    };
+
+    const resetLimits = () => {
+        if (window.confirm("Are you sure you want to reset all budget limits to default?")) {
+            setBudgets(DEFAULT_BUDGETS);
+        }
+    };
+
+    // --- Filter & Calculate ---
+    const filteredTransactions = useMemo(() => {
+        return transactions.filter(t => {
+            const tDate = new Date(t.date);
+            return tDate.getMonth() === currentDate.getMonth() && 
+                   tDate.getFullYear() === currentDate.getFullYear();
+        });
+    }, [transactions, currentDate]);
+
+    const spendingData = useMemo<Record<string, number>>(() => {
         const spending: Record<string, number> = {};
         
         // Initialize with 0
         budgets.forEach(b => spending[b.category] = 0);
 
-        // Aggregate expense transactions
-        transactions.filter(t => t.type === 'expense').forEach(t => {
-            // Simple string matching, in a real app this would be more robust or use IDs
+        // Aggregate expense transactions from filtered list
+        filteredTransactions.filter(t => t.type === 'expense').forEach(t => {
             const cat = budgets.find(b => b.category.toLowerCase() === t.category.toLowerCase())?.category;
             if (cat) {
-                spending[cat] += t.amount;
-            } else {
-                // Map unknown categories if needed, or ignore
+                const currentAmount = spending[cat] ?? 0;
+                const txnAmount = Number(t.amount);
+                spending[cat] = currentAmount + txnAmount;
             }
         });
-
-        // Mock data augmentation for categories with no transactions in MOCK_DATA to make the chart look better for demo
-        if (spending['Shopping'] === 0) spending['Shopping'] = 1250;
         
         return spending;
-    }, [transactions, budgets]);
+    }, [filteredTransactions, budgets]);
 
     const handleEditStart = (category: string, currentLimit: number) => {
         setEditingCategory(category);
@@ -69,21 +89,26 @@ export const BudgetSection: React.FC<BudgetSectionProps> = ({ transactions }) =>
     };
 
     // Prepare chart data
-    const chartData = budgets.map(b => ({
-        name: b.category,
-        Spent: spendingData[b.category] || 0,
-        Budget: b.limit,
-        Remaining: Math.max(0, b.limit - (spendingData[b.category] || 0))
-    }));
+    const chartData = budgets.map(b => {
+        const spent = spendingData[b.category] || 0;
+        return {
+            name: b.category,
+            Spent: spent,
+            Budget: b.limit,
+            Remaining: Math.max(0, b.limit - spent)
+        };
+    });
 
     const totalBudget = budgets.reduce((acc: number, curr: CategoryBudget) => acc + curr.limit, 0);
-    const totalSpent = Object.values(spendingData).reduce((acc: number, curr: number) => acc + curr, 0);
+    const totalSpent = (Object.values(spendingData) as number[]).reduce((acc, curr) => acc + curr, 0);
     const totalRemaining = Math.max(0, totalBudget - totalSpent);
 
     const pieData = [
         { name: 'Spent', value: totalSpent, color: '#f43f5e' }, // Rose 500
         { name: 'Remaining', value: totalRemaining, color: '#10b981' }, // Emerald 500
     ];
+
+    const formattedDate = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
     return (
         <div className="max-w-6xl mx-auto animate-fade-in space-y-8">
@@ -93,7 +118,20 @@ export const BudgetSection: React.FC<BudgetSectionProps> = ({ transactions }) =>
                         <div className="p-3 bg-pink-100 rounded-2xl text-pink-600 shadow-sm"><Calculator size={32} /></div>
                         Budget Planner
                     </h2>
-                    <p className="text-slate-500 mt-1 font-medium ml-1">Track your monthly expenses and stay within limits.</p>
+                    <p className="text-slate-500 mt-1 font-medium ml-1">Track monthly expenses and set category limits.</p>
+                </div>
+                
+                {/* Period Selector */}
+                <div className="flex items-center gap-4 bg-white p-2 rounded-xl shadow-sm border border-slate-200">
+                    <button onClick={prevMonth} className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors">
+                        <ChevronLeft size={20} />
+                    </button>
+                    <span className="font-bold text-slate-800 min-w-[140px] text-center select-none">
+                        {formattedDate}
+                    </span>
+                    <button onClick={nextMonth} className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors">
+                        <ChevronRight size={20} />
+                    </button>
                 </div>
             </div>
 
@@ -108,7 +146,7 @@ export const BudgetSection: React.FC<BudgetSectionProps> = ({ transactions }) =>
                 </div>
                 <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-lg flex items-center justify-between">
                     <div>
-                        <p className="text-slate-400 text-xs font-bold uppercase mb-1">Total Spent</p>
+                        <p className="text-slate-400 text-xs font-bold uppercase mb-1">Total Spent ({currentDate.toLocaleDateString('en-US', {month:'short'})})</p>
                         <p className="text-3xl font-extrabold text-rose-500">₹{totalSpent.toLocaleString()}</p>
                     </div>
                     <div className="p-4 bg-rose-50 rounded-full text-rose-500"><TrendingDown size={24} /></div>
@@ -125,8 +163,15 @@ export const BudgetSection: React.FC<BudgetSectionProps> = ({ transactions }) =>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Category List */}
                 <div className="lg:col-span-2 bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
-                    <div className="p-6 border-b border-slate-100 bg-slate-50/50">
+                    <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                         <h3 className="font-bold text-slate-800 text-lg">Category Breakdown</h3>
+                        <button 
+                            onClick={resetLimits}
+                            className="text-xs font-bold text-slate-500 hover:text-rose-500 flex items-center gap-1 transition-colors"
+                            title="Reset all limits to default"
+                        >
+                            <RotateCcw size={12} /> Reset Limits
+                        </button>
                     </div>
                     <div className="p-6 space-y-6">
                         {budgets.map((budget) => {
