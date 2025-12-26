@@ -2,8 +2,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { Transaction } from "../types";
 
-const apiKey = process.env.API_KEY || '';
-const ai = new GoogleGenAI({ apiKey });
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const getFinancialAdvice = async (
   transactions: Transaction[],
@@ -11,10 +10,6 @@ export const getFinancialAdvice = async (
   userAge: number,
   userQuery: string
 ): Promise<string> => {
-  if (!apiKey) {
-    return "API Key is missing. Please configure the environment.";
-  }
-
   const transactionSummary = transactions.map(t => 
     `${t.date}: ${t.type.toUpperCase()} - $${t.amount} (${t.category})`
   ).join('\n');
@@ -37,7 +32,7 @@ export const getFinancialAdvice = async (
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: prompt,
     });
     return response.text || "I couldn't generate advice at this moment.";
@@ -47,11 +42,46 @@ export const getFinancialAdvice = async (
   }
 };
 
+export const getGeneralChatResponse = async (
+  userName: string,
+  userProfession: string,
+  userQuery: string,
+  chatHistory: { role: string, text: string }[] = []
+): Promise<string> => {
+  const historyContext = chatHistory.slice(-6).map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.text}`).join('\n');
+
+  const prompt = `
+    System Instruction: You are "Wavey", the official AI assistant of Wealth Waves. 
+    You are friendly, witty, and extremely knowledgeable about Indian personal finance.
+    Your goal is to help ${userName} (a ${userProfession}) navigate the app and answer any financial or general questions.
+    
+    Current Task: Respond to the user's message.
+    
+    Conversation History:
+    ${historyContext}
+    
+    User message: "${userQuery}"
+    
+    Instructions:
+    - Keep it under 60 words.
+    - Use occasional emojis.
+    - Be encouraging.
+    - If the user asks about app features, guide them to sections like "Mutual Funds", "Budget Planner", or "Student Corner".
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt,
+    });
+    return response.text || "I'm here to help! Wavey is listening.";
+  } catch (error) {
+    console.error("Gemini General Chat Error:", error);
+    return "Wavey is momentarily under the tide. Please try again in a bit!";
+  }
+};
+
 export const getStockMarketAnalysis = async (): Promise<string> => {
-    if (!apiKey) {
-      return "API Key is missing. Please configure the environment.";
-    }
-  
     const prompt = `
       Act as a senior stock market analyst for the Indian (NSE/BSE) and Global markets. 
       Provide a "Real-time" style market recommendation report for the Wealth Waves app.
@@ -74,7 +104,7 @@ export const getStockMarketAnalysis = async (): Promise<string> => {
   
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3-flash-preview',
         contents: prompt,
       });
       return response.text || "Market analysis unavailable.";
@@ -91,8 +121,6 @@ export const getAdvisorChatResponse = async (
   userQuery: string,
   chatHistory: { role: string, text: string }[] = []
 ): Promise<string> => {
-  if (!apiKey) return "Unable to connect to advisor.";
-
   const historyContext = chatHistory.slice(-5).map(m => `${m.role === 'user' ? 'User' : advisorName}: ${m.text}`).join('\n');
 
   const prompt = `
@@ -112,7 +140,7 @@ export const getAdvisorChatResponse = async (
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: prompt,
     });
     return response.text || "I apologize, I didn't quite catch that.";
@@ -123,8 +151,6 @@ export const getAdvisorChatResponse = async (
 };
 
 export const getMutualFundAnalysis = async (fundCategory: string): Promise<string> => {
-    if (!apiKey) return "API key missing.";
-
     const prompt = `
       Analyze the "${fundCategory}" Mutual Fund category for an Indian investor.
       
@@ -138,7 +164,7 @@ export const getMutualFundAnalysis = async (fundCategory: string): Promise<strin
 
     try {
         const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-3-flash-preview',
           contents: prompt,
         });
         return response.text || "Analysis unavailable.";
@@ -153,8 +179,6 @@ export const generatePortfolio = async (
   duration: string,
   returnRate: string
 ): Promise<string> => {
-  if (!apiKey) return "API Key is missing.";
-
   const prompt = `
     You are an expert AI Portfolio Manager for the Indian Stock Market.
     
@@ -189,7 +213,7 @@ export const generatePortfolio = async (
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-pro-preview',
       contents: prompt,
     });
     return response.text || "Could not generate portfolio strategy.";

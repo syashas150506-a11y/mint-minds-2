@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Heart, 
@@ -10,10 +11,11 @@ import {
   ArrowLeftRight, 
   Info, 
   Star,
-  Check
+  Check,
+  GraduationCap
 } from 'lucide-react';
 
-type InsuranceType = 'health' | 'term' | 'vehicle' | 'life';
+type InsuranceType = 'health' | 'term' | 'vehicle' | 'life' | 'education';
 
 interface InsurancePlan {
   id: string;
@@ -61,16 +63,30 @@ const INSURANCE_DATA: InsuranceCategory[] = [
       { id: 'h2', provider: 'Star Health', planName: 'Comprehensive Policy', cover: '₹5 Lakhs - 1 Cr', premium: '₹12,000/yr', csr: '99.1%', features: ['Maternity Cover', 'Free Health Checkup'], link: 'https://www.starhealth.in', rating: 4.7 },
       { id: 'h3', provider: 'Niva Bupa', planName: 'ReAssure 2.0', cover: '₹5 Lakhs - 1 Cr', premium: '₹9,200/yr', csr: '97.8%', features: ['Unlimited Reinstatement', 'Lock the Clock Age'], link: 'https://www.nivabupa.com', rating: 4.6 },
       { id: 'h4', provider: 'Care Health', planName: 'Care Supreme', cover: '₹7 Lakhs - 1 Cr', premium: '₹10,500/yr', csr: '95.2%', features: ['Unlimited Automatic Recharge', 'No Claim Bonus Super'], link: 'https://www.careinsurance.com', rating: 4.5 },
-      { id: 'h5', provider: 'ICICI Lombard', planName: 'Health AdvantEdge', cover: '₹10 Lakhs', premium: '₹9,800/yr', csr: '97.9%', features: ['Global Cover', 'Air Ambulance'], link: 'https://www.icicilombard.com', rating: 4.7 },
-      { id: 'h6', provider: 'Bajaj Allianz', planName: 'Health Guard', cover: '₹5 - 50 Lakhs', premium: '₹8,900/yr', csr: '98.0%', features: ['Convalescence Benefit', 'Daily Cash'], link: 'https://www.bajajallianz.com', rating: 4.6 },
-      { id: 'h7', provider: 'Tata AIG', planName: 'Medicare', cover: '₹5 Lakhs', premium: '₹7,500/yr', csr: '96.8%', features: ['Consumables Cover', 'Restoration Benefit'], link: 'https://www.tataaig.com', rating: 4.5 },
-      { id: 'h8', provider: 'SBI General', planName: 'Arogya Supreme', cover: '₹5 Lakhs', premium: '₹8,200/yr', csr: '95.5%', features: ['No Room Rent Limit', 'Recovery Benefit'], link: 'https://www.sbigeneral.in', rating: 4.4 },
-      { id: 'h9', provider: 'Aditya Birla', planName: 'Activ Health Platinum', cover: '₹10 Lakhs', premium: '₹11,000/yr', csr: '96.2%', features: ['Chronic Management', 'Health Returns'], link: 'https://www.adityabirlacapital.com', rating: 4.5 },
-      { id: 'h10', provider: 'ManipalCigna', planName: 'ProHealth', cover: '₹5 Lakhs', premium: '₹9,000/yr', csr: '94.8%', features: ['Worldwide Emergency', 'Health Rewards'], link: 'https://www.manipalcigna.com', rating: 4.3 },
-      { id: 'h11', provider: 'Reliance General', planName: 'Health Infinity', cover: '₹5 Lakhs', premium: '₹7,800/yr', csr: '98.6%', features: ['More Global Cover', 'More Time'], link: 'https://www.reliancegeneral.co.in', rating: 4.4 },
-      { id: 'h12', provider: 'United India', planName: 'Family Medicare', cover: '₹10 Lakhs', premium: '₹12,500/yr', csr: '92.1%', features: ['Govt Backed', 'Affordable'], link: 'https://uiic.co.in', rating: 4.0 },
-      { id: 'h13', provider: 'New India', planName: 'Mediclaim Policy', cover: '₹5 Lakhs', premium: '₹6,500/yr', csr: '93.5%', features: ['Trusted Brand', 'Ayush Cover'], link: 'https://www.newindia.co.in', rating: 4.2 },
-      { id: 'h14', provider: 'Oriental Insurance', planName: 'Happy Family Float', cover: '₹10 Lakhs', premium: '₹11,800/yr', csr: '91.8%', features: ['Family Floater', 'Discounts'], link: 'https://orientalinsurance.org.in', rating: 4.1 }
+      { id: 'h5', provider: 'ICICI Lombard', planName: 'Health AdvantEdge', cover: '₹10 Lakhs', premium: '₹9,800/yr', csr: '97.9%', features: ['Global Cover', 'Air Ambulance'], link: 'https://www.icicilombard.com', rating: 4.7 }
+    ]
+  },
+  {
+    id: 'education',
+    title: 'Education Insurance',
+    desc: 'Secure your child\'s future education with guaranteed payouts.',
+    icon: <GraduationCap size={32} />,
+    color: 'bg-indigo-50 text-indigo-600 border-indigo-100',
+    info: {
+      what: "Education insurance plans are life insurance policies designed as a savings tool to provide a lump sum of money when your child reaches the age for higher education (18+ years). It ensures that your child's dreams are met even in your absence.",
+      benefits: [
+        "Guaranteed Payouts for higher education",
+        "Waiver of Premium if the parent passes away",
+        "Flexible payout options (Annual or Lump sum)",
+        "Tax benefits under Section 80C"
+      ]
+    },
+    plans: [
+      { id: 'e1', provider: 'LIC', planName: 'Jeevan Tarun', cover: 'Sum Assured', premium: '₹30,000/yr', csr: '98.6%', features: ['Participation in Profits', 'Flexible Survival Benefit'], link: 'https://licindia.in', rating: 4.9 },
+      { id: 'e2', provider: 'HDFC Life', planName: 'YoungStar Super Premium', cover: 'Life Cover', premium: '₹50,000/yr', csr: '99.0%', features: ['Waiver of Premium', 'Choices of 4 Funds'], link: 'https://www.hdfclife.com', rating: 4.8 },
+      { id: 'e3', provider: 'SBI Life', planName: 'Smart Champ Insurance', cover: 'Life Cover', premium: '₹40,000/yr', csr: '97.5%', features: ['4 Equal Annual Payouts', 'Accidental Total Disability Cover'], link: 'https://www.sbilife.co.in', rating: 4.7 },
+      { id: 'e4', provider: 'Max Life', planName: 'Future Genius Education Plan', cover: 'Life Cover', premium: '₹45,000/yr', csr: '99.3%', features: ['8 Discounted Payouts', 'Bonus Options'], link: 'https://www.maxlifeinsurance.com', rating: 4.7 },
+      { id: 'e5', provider: 'ICICI Pru', planName: 'SmartKid Solution', cover: 'Life Cover', premium: '₹35,000/yr', csr: '97.8%', features: ['Life Stage Basis', 'Wealth Boosters'], link: 'https://www.iciciprulife.com', rating: 4.6 }
     ]
   },
   {
@@ -91,15 +107,7 @@ const INSURANCE_DATA: InsuranceCategory[] = [
     plans: [
       { id: 't1', provider: 'LIC', planName: 'Jeevan Amar', cover: '₹1 Crore', premium: '₹15,000/yr', csr: '98.6%', features: ['Govt Backed', 'Flexible Premium Payment'], link: 'https://licindia.in', rating: 4.9 },
       { id: 't2', provider: 'ICICI Pru', planName: 'iProtect Smart', cover: '₹1 Crore', premium: '₹11,500/yr', csr: '97.8%', features: ['Critical Illness Cover', 'Terminal Illness Benefit'], link: 'https://www.iciciprulife.com', rating: 4.7 },
-      { id: 't3', provider: 'Max Life', planName: 'Smart Secure Plus', cover: '₹1 Crore', premium: '₹10,800/yr', csr: '99.3%', features: ['Return of Premium Option', 'Joint Life Cover'], link: 'https://www.maxlifeinsurance.com', rating: 4.8 },
-      { id: 't4', provider: 'HDFC Life', planName: 'Click 2 Protect Super', cover: '₹1 Crore', premium: '₹12,000/yr', csr: '99.0%', features: ['Life Stage Option', 'Smart Exit Benefit'], link: 'https://www.hdfclife.com', rating: 4.8 },
-      { id: 't5', provider: 'Tata AIA', planName: 'Sampoorna Raksha', cover: '₹1 Crore', premium: '₹11,200/yr', csr: '99.0%', features: ['Whole Life Cover', 'Return of Premium'], link: 'https://www.tataaia.com', rating: 4.7 },
-      { id: 't6', provider: 'SBI Life', planName: 'eShield Next', cover: '₹1 Crore', premium: '₹13,500/yr', csr: '97.5%', features: ['Increasing Cover', 'Better Half Benefit'], link: 'https://www.sbilife.co.in', rating: 4.6 },
-      { id: 't7', provider: 'Bajaj Allianz', planName: 'Smart Protect Goal', cover: '₹1 Crore', premium: '₹10,500/yr', csr: '98.0%', features: ['Child Education Benefit', 'Add-on Covers'], link: 'https://www.bajajallianzlife.com', rating: 4.5 },
-      { id: 't8', provider: 'Kotak Life', planName: 'e-Term Plan', cover: '₹1 Crore', premium: '₹9,800/yr', csr: '98.2%', features: ['Low Cost', 'Step Up Option'], link: 'https://www.kotaklife.com', rating: 4.6 },
-      { id: 't9', provider: 'Aditya Birla', planName: 'DigiShield Plan', cover: '₹1 Crore', premium: '₹11,800/yr', csr: '97.2%', features: ['Survival Benefit', 'Multiple Payout Options'], link: 'https://lifeinsurance.adityabirlacapital.com', rating: 4.5 },
-      { id: 't10', provider: 'PNB MetLife', planName: 'Mera Term Plan', cover: '₹1 Crore', premium: '₹10,200/yr', csr: '97.3%', features: ['Cover till 99', 'Joint Life'], link: 'https://www.pnbmetlife.com', rating: 4.4 },
-      { id: 't11', provider: 'Canara HSBC', planName: 'iSelect Smart360', cover: '₹1 Crore', premium: '₹10,000/yr', csr: '98.1%', features: ['Block your Premium', 'Terminal Illness'], link: 'https://www.canarahsbclife.com', rating: 4.3 }
+      { id: 't3', provider: 'Max Life', planName: 'Smart Secure Plus', cover: '₹1 Crore', premium: '₹10,800/yr', csr: '99.3%', features: ['Return of Premium Option', 'Joint Life Cover'], link: 'https://www.maxlifeinsurance.com', rating: 4.8 }
     ]
   },
   {
@@ -109,28 +117,17 @@ const INSURANCE_DATA: InsuranceCategory[] = [
     icon: <Car size={32} />,
     color: 'bg-emerald-50 text-emerald-600 border-emerald-100',
     info: {
-      what: "Vehicle insurance (also known as car insurance, motor insurance, or auto insurance) is insurance for cars, trucks, motorcycles, and other road vehicles. It provides financial protection against physical damage or bodily injury resulting from traffic collisions and against liability that could also arise from incidents in a vehicle.",
+      what: "Vehicle insurance provides financial protection against physical damage or bodily injury resulting from traffic collisions and against liability that could also arise from incidents in a vehicle.",
       benefits: [
         "Mandatory by Law (Third-Party)",
         "Own Damage Cover (Accidents, Theft, Fire)",
         "Personal Accident Cover",
-        "Add-ons like Zero Depreciation, Roadside Assistance"
+        "Add-ons like Zero Depreciation"
       ]
     },
     plans: [
       { id: 'v1', provider: 'Acko', planName: 'Comprehensive Car', cover: 'IDV Based', premium: '₹3,500/yr', csr: '96.5%', features: ['Zero Commission', 'Instant Claims'], link: 'https://www.acko.com', rating: 4.6 },
-      { id: 'v2', provider: 'Digit', planName: 'Smart Drive', cover: 'IDV Based', premium: '₹3,800/yr', csr: '97.0%', features: ['Paperless Claims', 'Smartphone Enabled'], link: 'https://www.godigit.com', rating: 4.7 },
-      { id: 'v3', provider: 'ICICI Lombard', planName: 'Motor Protect', cover: 'IDV Based', premium: '₹4,200/yr', csr: '98.2%', features: ['Garage Cash', '24x7 Assistance'], link: 'https://www.icicilombard.com', rating: 4.8 },
-      { id: 'v4', provider: 'HDFC ERGO', planName: 'Motor Insurance', cover: 'IDV Based', premium: '₹4,000/yr', csr: '99.0%', features: ['Overnight Repairs', 'Doorstep Service'], link: 'https://www.hdfcergo.com', rating: 4.8 },
-      { id: 'v5', provider: 'Bajaj Allianz', planName: 'Car Shield', cover: 'IDV Based', premium: '₹3,900/yr', csr: '98.5%', features: ['Drive Smart', 'Transfer NCB'], link: 'https://www.bajajallianz.com', rating: 4.6 },
-      { id: 'v6', provider: 'Tata AIG', planName: 'Auto Secure', cover: 'IDV Based', premium: '₹4,100/yr', csr: '97.5%', features: ['12 Warranty', 'Engine Protect'], link: 'https://www.tataaig.com', rating: 4.7 },
-      { id: 'v7', provider: 'Reliance General', planName: 'Car Insurance', cover: 'IDV Based', premium: '₹3,600/yr', csr: '98.0%', features: ['Video Claims', 'Instant Renewal'], link: 'https://www.reliancegeneral.co.in', rating: 4.5 },
-      { id: 'v8', provider: 'SBI General', planName: 'Private Car', cover: 'IDV Based', premium: '₹4,300/yr', csr: '95.0%', features: ['Trust', 'Wide Network'], link: 'https://www.sbigeneral.in', rating: 4.4 },
-      { id: 'v9', provider: 'New India', planName: 'Motor Policy', cover: 'IDV Based', premium: '₹4,500/yr', csr: '92.5%', features: ['Public Sector', 'Low Rates'], link: 'https://www.newindia.co.in', rating: 4.1 },
-      { id: 'v10', provider: 'United India', planName: 'Motor Package', cover: 'IDV Based', premium: '₹4,400/yr', csr: '91.0%', features: ['Govt Backed', 'Simple Process'], link: 'https://uiic.co.in', rating: 4.0 },
-      { id: 'v11', provider: 'Cholamandalam', planName: 'Car Protect', cover: 'IDV Based', premium: '₹3,750/yr', csr: '94.0%', features: ['QR Code Claims', 'Minimal Docs'], link: 'https://www.cholainsurance.com', rating: 4.3 },
-      { id: 'v12', provider: 'Kotak General', planName: 'Car Secure', cover: 'IDV Based', premium: '₹3,850/yr', csr: '96.0%', features: ['Kotak Meter', 'Pay As You Drive'], link: 'https://www.kotakgeneral.com', rating: 4.5 },
-      { id: 'v13', provider: 'Shriram General', planName: 'Car Insurance', cover: 'IDV Based', premium: '₹3,400/yr', csr: '93.0%', features: ['Value for Money', 'Easy Buy'], link: 'https://www.shriramgi.com', rating: 4.2 }
+      { id: 'v2', provider: 'Digit', planName: 'Smart Drive', cover: 'IDV Based', premium: '₹3,800/yr', csr: '97.0%', features: ['Paperless Claims', 'Smartphone Enabled'], link: 'https://www.godigit.com', rating: 4.7 }
     ]
   },
   {
@@ -140,26 +137,17 @@ const INSURANCE_DATA: InsuranceCategory[] = [
     icon: <Umbrella size={32} />,
     color: 'bg-purple-50 text-purple-600 border-purple-100',
     info: {
-      what: "Life insurance or Endowment plans are policies that offer a combination of insurance coverage and savings. They pay out a lump sum amount after a specific term (on maturity) or on death.",
+      what: "Life insurance or Endowment plans offer a combination of insurance coverage and savings. They pay out a lump sum amount after a specific term or on death.",
       benefits: [
         "Guaranteed Returns on Maturity",
         "Life Cover for the entire term",
         "Loan facility against policy",
-        "Bonus additions (for participating plans)"
+        "Bonus additions"
       ]
     },
     plans: [
       { id: 'l1', provider: 'HDFC Life', planName: 'Sanchay Plus', cover: 'Life Cover', premium: '₹1 Lakh/yr', csr: '99.0%', features: ['Guaranteed Income', 'Long Term Income Option'], link: 'https://www.hdfclife.com', rating: 4.8 },
-      { id: 'l2', provider: 'Tata AIA', planName: 'Fortune Guarantee', cover: 'Life Cover', premium: '₹50,000/yr', csr: '98.5%', features: ['Higher Returns', 'Flexible Terms'], link: 'https://www.tataaia.com', rating: 4.7 },
-      { id: 'l3', provider: 'LIC', planName: 'Jeevan Umang', cover: 'Life Cover + Pension', premium: '₹60,000/yr', csr: '98.6%', features: ['Whole Life', 'Yearly Survival Benefit'], link: 'https://licindia.in', rating: 4.9 },
-      { id: 'l4', provider: 'LIC', planName: 'New Endowment', cover: 'Sum Assured', premium: '₹25,000/yr', csr: '98.6%', features: ['Participation in Profits', 'Liquidity'], link: 'https://licindia.in', rating: 4.8 },
-      { id: 'l5', provider: 'ICICI Pru', planName: 'Gift Pro', cover: 'Life Cover', premium: '₹75,000/yr', csr: '97.8%', features: ['Level Income', 'Increasing Income'], link: 'https://www.iciciprulife.com', rating: 4.6 },
-      { id: 'l6', provider: 'SBI Life', planName: 'Smart Platina', cover: 'Life Cover', premium: '₹1 Lakh/yr', csr: '97.5%', features: ['Guaranteed Additions', 'Tax Free Returns'], link: 'https://www.sbilife.co.in', rating: 4.7 },
-      { id: 'l7', provider: 'Bajaj Allianz', planName: 'Guaranteed Income', cover: 'Life Cover', premium: '₹80,000/yr', csr: '98.0%', features: ['Regular Income', 'Lump Sum'], link: 'https://www.bajajallianzlife.com', rating: 4.5 },
-      { id: 'l8', provider: 'Max Life', planName: 'Savings Advantage', cover: 'Life Cover', premium: '₹50,000/yr', csr: '99.3%', features: ['Flexibility', 'Bonus Payouts'], link: 'https://www.maxlifeinsurance.com', rating: 4.7 },
-      { id: 'l9', provider: 'Kotak Life', planName: 'Guaranteed Fortune', cover: 'Life Cover', premium: '₹90,000/yr', csr: '98.2%', features: ['Short Pay', 'Long Returns'], link: 'https://www.kotaklife.com', rating: 4.5 },
-      { id: 'l10', provider: 'PNB MetLife', planName: 'Guaranteed Income', cover: 'Life Cover', premium: '₹60,000/yr', csr: '97.3%', features: ['Family Protection', 'Wealth Creation'], link: 'https://www.pnbmetlife.com', rating: 4.4 },
-      { id: 'l11', provider: 'IndiaFirst', planName: 'Guaranteed Benefit', cover: 'Life Cover', premium: '₹40,000/yr', csr: '96.0%', features: ['High IRR', 'Flexibility'], link: 'https://www.indiafirstlife.com', rating: 4.3 }
+      { id: 'l2', provider: 'Tata AIA', planName: 'Fortune Guarantee', cover: 'Life Cover', premium: '₹50,000/yr', csr: '98.5%', features: ['Higher Returns', 'Flexible Terms'], link: 'https://www.tataaia.com', rating: 4.7 }
     ]
   }
 ];
@@ -182,13 +170,10 @@ export const InsuranceSection: React.FC = () => {
   };
 
   const handleApply = (link: string) => {
-    // In a real app, this might track the click analytics
     window.open(link, '_blank');
   };
 
   const currentCategory = INSURANCE_DATA.find(c => c.id === selectedType);
-
-  // --- Render Views ---
 
   const renderGrid = () => (
     <div className="max-w-6xl mx-auto animate-fade-in space-y-10 pb-10">
@@ -202,12 +187,12 @@ export const InsuranceSection: React.FC = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 md:px-0">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4 md:px-0">
         {INSURANCE_DATA.map((item) => (
           <button
             key={item.id}
             onClick={() => { setSelectedType(item.id); setCompareList([]); setShowComparison(false); }}
-            className="group relative bg-white p-8 rounded-3xl border border-slate-100 shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 text-left overflow-hidden"
+            className="group relative bg-white p-8 rounded-3xl border border-slate-100 shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 text-left overflow-hidden h-full flex flex-col"
           >
             <div className={`absolute top-0 right-0 w-32 h-32 opacity-10 rounded-bl-[100px] transition-transform group-hover:scale-110 ${item.color.split(' ')[0]}`} />
             
@@ -221,7 +206,7 @@ export const InsuranceSection: React.FC = () => {
             </div>
             
             <h3 className="text-2xl font-bold text-slate-800 mb-2 group-hover:text-rose-600 transition-colors">{item.title}</h3>
-            <p className="text-slate-500 font-medium">{item.desc}</p>
+            <p className="text-slate-500 font-medium line-clamp-2">{item.desc}</p>
           </button>
         ))}
       </div>
@@ -322,7 +307,6 @@ export const InsuranceSection: React.FC = () => {
             <ArrowRight className="rotate-180" size={20} /> Back to Categories
         </button>
 
-        {/* Info Card */}
         <div className="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden">
             <div className={`p-8 ${currentCategory.color} bg-opacity-10 border-b`}>
                 <div className="flex items-center gap-4 mb-4">
@@ -357,7 +341,6 @@ export const InsuranceSection: React.FC = () => {
             </div>
         </div>
 
-        {/* Comparison Floater */}
         {compareList.length > 0 && !showComparison && (
             <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 bg-slate-900 text-white p-4 rounded-full shadow-2xl flex items-center gap-6 pr-2 animate-fade-in-up border border-slate-700">
                 <div className="pl-2 font-bold text-sm">
@@ -381,7 +364,6 @@ export const InsuranceSection: React.FC = () => {
             </div>
         )}
 
-        {/* Plans Listing */}
         <div className="space-y-6">
             <h3 className="text-2xl font-bold text-slate-800 px-2">Top {currentCategory.title} Plans</h3>
             <div className="grid grid-cols-1 gap-4">
@@ -389,7 +371,6 @@ export const InsuranceSection: React.FC = () => {
                     const isSelected = compareList.includes(plan.id);
                     return (
                         <div key={plan.id} className={`bg-white rounded-2xl p-6 border transition-all hover:shadow-lg flex flex-col md:flex-row gap-6 items-center ${isSelected ? 'border-indigo-500 ring-1 ring-indigo-500 shadow-indigo-100' : 'border-slate-200'}`}>
-                            {/* Provider Info */}
                             <div className="flex-1 w-full">
                                 <div className="flex items-center justify-between mb-2">
                                     <h4 className="text-xl font-bold text-slate-800">{plan.provider}</h4>
@@ -412,10 +393,8 @@ export const InsuranceSection: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Divider for Mobile */}
                             <div className="w-full h-px bg-slate-100 md:w-px md:h-24 md:bg-slate-100" />
 
-                            {/* Pricing & Cover */}
                             <div className="text-center w-full md:w-auto md:text-right min-w-[150px]">
                                 <p className="text-xs text-slate-400 font-bold uppercase mb-1">Coverage</p>
                                 <p className="text-lg font-bold text-slate-700 mb-3">{plan.cover}</p>
@@ -424,7 +403,6 @@ export const InsuranceSection: React.FC = () => {
                                 <p className="text-2xl font-extrabold text-emerald-600">{plan.premium}</p>
                             </div>
 
-                            {/* Actions */}
                             <div className="flex flex-col gap-3 w-full md:w-auto min-w-[160px]">
                                 <button 
                                     onClick={() => handleApply(plan.link)}

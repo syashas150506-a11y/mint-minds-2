@@ -10,10 +10,10 @@ import {
   ExternalLink,
   CheckCircle2,
   AlertCircle,
-  PieChart,
   ArrowRight,
   Percent,
-  Banknote
+  Banknote,
+  Info
 } from 'lucide-react';
 import { PieChart as RePieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
@@ -108,7 +108,8 @@ export const MSMESection: React.FC = () => {
     const [loanInput, setLoanInput] = useState({
         amount: '1000000',
         rate: '12',
-        tenure: '5'
+        tenure: '5',
+        processingFee: '2' // Default 2%
     });
 
     // Health Calc Logic
@@ -143,20 +144,30 @@ export const MSMESection: React.FC = () => {
         const P = parseFloat(loanInput.amount) || 0;
         const R = (parseFloat(loanInput.rate) || 0) / 12 / 100;
         const N = (parseFloat(loanInput.tenure) || 0) * 12;
+        const F = parseFloat(loanInput.processingFee) || 0;
 
-        if (P === 0 || R === 0 || N === 0) return { emi: 0, totalInterest: 0, totalPayable: 0 };
+        if (P === 0 || R === 0 || N === 0) return { emi: 0, totalInterest: 0, totalPayable: 0, feeAmount: 0, totalOutgo: 0 };
 
         const emi = (P * R * Math.pow(1 + R, N)) / (Math.pow(1 + R, N) - 1);
         const totalPayable = emi * N;
         const totalInterest = totalPayable - P;
+        const feeAmount = P * (F / 100);
+        const totalOutgo = totalPayable + feeAmount;
 
-        return { emi: Math.round(emi), totalInterest: Math.round(totalInterest), totalPayable: Math.round(totalPayable) };
+        return { 
+            emi: Math.round(emi), 
+            totalInterest: Math.round(totalInterest), 
+            totalPayable: Math.round(totalPayable),
+            feeAmount: Math.round(feeAmount),
+            totalOutgo: Math.round(totalOutgo)
+        };
     };
 
     const loanResult = calculateLoan();
     const loanChartData = [
-        { name: 'Principal', value: parseFloat(loanInput.amount) || 0, color: '#6366f1' }, // Indigo
-        { name: 'Interest', value: loanResult.totalInterest, color: '#f43f5e' }, // Rose
+        { name: 'Principal', value: parseFloat(loanInput.amount) || 0, color: '#6366f1' },
+        { name: 'Interest', value: loanResult.totalInterest, color: '#f43f5e' },
+        { name: 'Proc. Fee', value: loanResult.feeAmount, color: '#f59e0b' },
     ];
 
     return (
@@ -246,82 +257,70 @@ export const MSMESection: React.FC = () => {
                     </div>
 
                     <div className="space-y-6">
-                        <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-8 rounded-3xl shadow-xl text-white relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-24 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-                            <div className="relative z-10 grid grid-cols-2 gap-8">
-                                <div>
-                                    <p className="text-slate-400 text-xs font-bold uppercase mb-1">EBITDA</p>
-                                    <p className="text-3xl font-extrabold text-blue-400">₹{metrics.ebitda.toLocaleString()}</p>
-                                </div>
-                                <div>
-                                    <p className="text-slate-400 text-xs font-bold uppercase mb-1">Net Profit</p>
-                                    <p className={`text-3xl font-extrabold ${metrics.netProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                                        ₹{metrics.netProfit.toLocaleString()}
-                                    </p>
+                        <div className="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 flex flex-col items-center">
+                            <h3 className="font-bold text-slate-800 mb-6">Revenue Breakdown</h3>
+                            <div className="h-[250px] w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <RePieChart>
+                                        <Pie
+                                            data={healthChartData}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={60}
+                                            outerRadius={80}
+                                            paddingAngle={5}
+                                            dataKey="value"
+                                        >
+                                            {healthChartData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip formatter={(val: number) => `₹${val.toLocaleString()}`} />
+                                    </RePieChart>
+                                </ResponsiveContainer>
+                            </div>
+                            <div className="grid grid-cols-1 gap-3 w-full mt-4">
+                                <div className="flex justify-between p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+                                    <span className="text-emerald-700 font-bold">Net Profit</span>
+                                    <span className="text-emerald-700 font-black">₹{metrics.netProfit.toLocaleString()}</span>
                                 </div>
                             </div>
-                            <div className="mt-6 pt-6 border-t border-white/10">
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-slate-300">Total Operating Cost</span>
-                                    <span className="font-bold">₹{metrics.operatingCost.toLocaleString()}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="bg-white p-6 rounded-3xl shadow-lg border border-slate-100 flex flex-col items-center">
-                            <h4 className="font-bold text-slate-800 mb-2 text-sm">Cost vs Profit Breakdown</h4>
-                            {healthChartData.length > 0 ? (
-                                <div className="w-full h-[200px]">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <RePieChart>
-                                            <Pie data={healthChartData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                                                {healthChartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />)}
-                                            </Pie>
-                                            <Tooltip formatter={(val: number) => `₹${val.toLocaleString()}`} contentStyle={{ borderRadius: '8px', border: 'none' }} />
-                                            <Legend verticalAlign="bottom" height={36} iconType="circle" />
-                                        </RePieChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            ) : (
-                                <div className="h-[200px] flex items-center justify-center text-slate-400 text-sm">Enter data to visualize</div>
-                            )}
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* --- Loan Calculator --- */}
+            {/* --- EMI Calculator --- */}
             {activeTab === 'loan' && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-fade-in-up">
                     <div className="bg-white p-8 rounded-3xl shadow-xl border border-slate-100">
                         <h3 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                            <Banknote className="text-indigo-600" /> MSME Loan Calculator
+                            <Banknote className="text-blue-600" /> Business Loan Estimator
                         </h3>
                         
                         <div className="space-y-6">
                             <div>
                                 <label className="block text-sm font-bold text-slate-700 mb-2">Loan Amount (₹)</label>
-                                <input 
-                                    type="number" 
-                                    value={loanInput.amount}
-                                    onChange={(e) => setLoanInput({...loanInput, amount: e.target.value})}
-                                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-lg text-slate-800"
-                                    placeholder="e.g. 1000000"
-                                />
+                                <div className="relative">
+                                    <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                    <input 
+                                        type="number" 
+                                        value={loanInput.amount}
+                                        onChange={(e) => setLoanInput({...loanInput, amount: e.target.value})}
+                                        className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-bold"
+                                    />
+                                </div>
                             </div>
-                            
+
                             <div className="grid grid-cols-2 gap-6">
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-2">Interest Rate (%)</label>
-                                    <div className="relative">
-                                        <input 
-                                            type="number" 
-                                            value={loanInput.rate}
-                                            onChange={(e) => setLoanInput({...loanInput, rate: e.target.value})}
-                                            className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold"
-                                        />
-                                        <Percent size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                    </div>
+                                    <input 
+                                        type="number" 
+                                        value={loanInput.rate}
+                                        onChange={(e) => setLoanInput({...loanInput, rate: e.target.value})}
+                                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-bold"
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-2">Tenure (Years)</label>
@@ -329,119 +328,133 @@ export const MSMESection: React.FC = () => {
                                         type="number" 
                                         value={loanInput.tenure}
                                         onChange={(e) => setLoanInput({...loanInput, tenure: e.target.value})}
-                                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold"
+                                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-bold"
                                     />
                                 </div>
                             </div>
 
-                            <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-100 flex items-center gap-4">
-                                <div className="p-3 bg-white rounded-xl text-indigo-600 shadow-sm"><InfoIcon /></div>
-                                <p className="text-xs text-indigo-800 leading-relaxed">
-                                    MSME loans typically range from 8% to 16% interest depending on the scheme (Mudra, CGTMSE) or Bank policy.
-                                </p>
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-2 flex justify-between items-center">
+                                    Processing Fee (%)
+                                    <span className="text-blue-600 font-bold">{loanInput.processingFee}%</span>
+                                </label>
+                                <input 
+                                    type="range" 
+                                    min="0" max="10" step="0.1"
+                                    value={loanInput.processingFee}
+                                    onChange={(e) => setLoanInput({...loanInput, processingFee: e.target.value})}
+                                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                />
                             </div>
                         </div>
                     </div>
 
                     <div className="space-y-6">
-                        <div className="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 text-center">
-                            <p className="text-slate-400 text-xs font-bold uppercase mb-2">Estimated Monthly EMI</p>
-                            <p className="text-4xl font-black text-indigo-600 mb-6">₹{loanResult.emi.toLocaleString()}</p>
+                        <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-8 rounded-3xl shadow-2xl text-white relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-24 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+                            <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
+                                <Info size={20} className="text-blue-400" /> Loan Cost Breakdown
+                            </h3>
                             
-                            <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-6">
+                            <div className="space-y-6 relative z-10">
                                 <div>
-                                    <p className="text-slate-400 text-xs font-bold uppercase mb-1">Total Interest</p>
-                                    <p className="text-lg font-bold text-rose-500">₹{loanResult.totalInterest.toLocaleString()}</p>
+                                    <p className="text-slate-400 text-xs font-bold uppercase mb-1">Monthly EMI</p>
+                                    <p className="text-4xl font-black text-white">₹{loanResult.emi.toLocaleString()}</p>
                                 </div>
-                                <div>
-                                    <p className="text-slate-400 text-xs font-bold uppercase mb-1">Total Payable</p>
-                                    <p className="text-lg font-bold text-slate-800">₹{loanResult.totalPayable.toLocaleString()}</p>
+
+                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
+                                    <div>
+                                        <p className="text-slate-400 text-[10px] font-bold uppercase mb-1">Total Interest</p>
+                                        <p className="text-lg font-bold text-rose-400">₹{loanResult.totalInterest.toLocaleString()}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-slate-400 text-[10px] font-bold uppercase mb-1">Processing Fee</p>
+                                        <p className="text-lg font-bold text-amber-400">₹{loanResult.feeAmount.toLocaleString()}</p>
+                                    </div>
+                                </div>
+
+                                <div className="pt-4 border-t border-white/10">
+                                    <p className="text-slate-400 text-xs font-bold uppercase mb-1">Total Cost (Principal + Int + Fees)</p>
+                                    <p className="text-2xl font-black text-emerald-400">₹{loanResult.totalOutgo.toLocaleString()}</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-white p-6 rounded-3xl shadow-lg border border-slate-100 h-[250px]">
-                             <ResponsiveContainer width="100%" height="100%">
-                                <RePieChart>
-                                    <Pie data={loanChartData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                                        {loanChartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />)}
-                                    </Pie>
-                                    <Tooltip formatter={(val: number) => `₹${val.toLocaleString()}`} contentStyle={{ borderRadius: '8px', border: 'none' }} />
-                                    <Legend verticalAlign="bottom" height={36} iconType="circle" />
-                                </RePieChart>
-                            </ResponsiveContainer>
+                        {/* Cost Split Chart */}
+                        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-lg flex items-center">
+                            <div className="h-[150px] w-1/2">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <RePieChart>
+                                        <Pie
+                                            data={loanChartData}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={40}
+                                            outerRadius={60}
+                                            paddingAngle={4}
+                                            dataKey="value"
+                                        >
+                                            {loanChartData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip formatter={(val: number) => `₹${val.toLocaleString()}`} />
+                                    </RePieChart>
+                                </ResponsiveContainer>
+                            </div>
+                            <div className="w-1/2 space-y-2">
+                                {loanChartData.map((item) => (
+                                    <div key={item.name} className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+                                        <span className="text-xs font-bold text-slate-500">{item.name}</span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* --- Schemes & Loans List --- */}
+            {/* --- Schemes List --- */}
             {activeTab === 'schemes' && (
-                <div className="animate-fade-in-up">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {MSME_LOANS.map((loan) => (
-                            <div key={loan.id} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col h-full">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className={`p-3 rounded-2xl transition-colors ${loan.type === 'govt' ? 'bg-orange-50 text-orange-600' : 'bg-blue-50 text-blue-600'}`}>
-                                        <Landmark size={24} />
-                                    </div>
-                                    <div className="flex flex-col items-end">
-                                        <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold border border-emerald-100 mb-1">
-                                            Max {loan.loanLimit}
-                                        </span>
-                                        <span className="text-[10px] text-slate-400 font-bold uppercase">{loan.type === 'govt' ? 'Govt Scheme' : 'Bank Offer'}</span>
-                                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in-up">
+                    {MSME_LOANS.map((scheme) => (
+                        <div key={scheme.id} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-lg hover:shadow-xl transition-all group flex flex-col">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className={`p-3 rounded-xl ${scheme.type === 'govt' ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'}`}>
+                                    <Landmark size={24} />
                                 </div>
-                                
-                                <h3 className="text-xl font-bold text-slate-800 mb-2">{loan.name}</h3>
-                                <p className="text-slate-500 text-sm mb-4 leading-relaxed line-clamp-2 flex-1">
-                                    {loan.description}
-                                </p>
-
-                                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <span className="text-xs font-bold text-slate-400 uppercase">Interest Rate</span>
-                                        <span className="text-sm font-bold text-slate-800">{loan.interestRate}</span>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <span className="text-xs font-bold text-slate-400 uppercase block mb-1">Eligibility</span>
-                                        {loan.eligibility.slice(0, 2).map((e, i) => (
-                                            <div key={i} className="flex items-center gap-2 text-xs text-slate-600">
-                                                <CheckCircle2 size={12} className="text-blue-500" /> {e}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <a 
-                                    href={loan.link} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="flex items-center justify-center gap-2 w-full py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors"
-                                >
-                                    View Details <ExternalLink size={16} />
-                                </a>
+                                <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase ${scheme.type === 'govt' ? 'bg-orange-50 text-orange-600' : 'bg-blue-50 text-blue-600'}`}>
+                                    {scheme.type === 'govt' ? 'Government' : 'Private'}
+                                </span>
                             </div>
-                        ))}
-                    </div>
-                    
-                    <div className="mt-8 bg-blue-50 p-6 rounded-3xl border border-blue-100 flex items-start gap-4">
-                        <AlertCircle className="text-blue-600 shrink-0" size={24} />
-                        <div>
-                            <h4 className="font-bold text-blue-800 mb-1">Important Note</h4>
-                            <p className="text-sm text-blue-700/80">
-                                Always apply for government schemes through official .gov.in or .org.in portals. 
-                                Wealth Waves only redirects you to official sources and does not process loan applications directly.
-                            </p>
+                            
+                            <h4 className="font-bold text-slate-800 text-lg mb-2">{scheme.name}</h4>
+                            <p className="text-slate-500 text-sm mb-4 line-clamp-2">{scheme.description}</p>
+                            
+                            <div className="grid grid-cols-2 gap-4 mb-6">
+                                <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Max Limit</p>
+                                    <p className="text-sm font-bold text-slate-700">{scheme.loanLimit}</p>
+                                </div>
+                                <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Interest</p>
+                                    <p className="text-sm font-bold text-slate-700">{scheme.interestRate}</p>
+                                </div>
+                            </div>
+
+                            <a 
+                                href={scheme.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-auto w-full py-3 bg-slate-900 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 group-hover:bg-blue-600 transition-colors"
+                            >
+                                Learn More <ExternalLink size={16} />
+                            </a>
                         </div>
-                    </div>
+                    ))}
                 </div>
             )}
         </div>
     );
 };
-
-// Simple Icon for internal use
-const InfoIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-);

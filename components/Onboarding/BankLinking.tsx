@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { Input } from '../UI/Input';
 import { BankDetails } from '../../types';
-import { Landmark, Smartphone, ArrowRight } from 'lucide-react';
+import { Landmark, Smartphone, ArrowRight, ShieldCheck, Loader2 } from 'lucide-react';
 
 interface BankLinkingProps {
   onComplete: (details: BankDetails) => void;
@@ -17,6 +18,7 @@ export const BankLinking: React.FC<BankLinkingProps> = ({ onComplete }) => {
   const [generatedOtp, setGeneratedOtp] = useState<string>('');
   const [inputOtp, setInputOtp] = useState('');
   const [error, setError] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const handleSendOtp = () => {
     if (!details.bankName || !details.accountNumber || !details.ifsc) {
@@ -32,7 +34,12 @@ export const BankLinking: React.FC<BankLinkingProps> = ({ onComplete }) => {
 
   const handleVerify = () => {
     if (inputOtp === generatedOtp) {
-      onComplete(details);
+      setIsVerifying(true);
+      // Short artificial delay for realistic feel
+      setTimeout(() => {
+        setIsVerifying(false);
+        onComplete(details);
+      }, 1000);
     } else {
       setError("Incorrect OTP. Please try again.");
     }
@@ -54,61 +61,71 @@ export const BankLinking: React.FC<BankLinkingProps> = ({ onComplete }) => {
         <div className="space-y-4">
           <Input
             label="Bank Name"
-            placeholder="e.g. Chase, Bank of America"
+            placeholder="e.g. HDFC, SBI, ICICI"
             value={details.bankName}
-            onChange={(e) => setDetails({ ...details, bankName: e.target.value })}
+            onChange={(e) => { setDetails({ ...details, bankName: e.target.value }); setError(''); }}
           />
           <Input
             label="Account Number"
             placeholder="1234567890"
             value={details.accountNumber}
-            onChange={(e) => setDetails({ ...details, accountNumber: e.target.value })}
+            onChange={(e) => { setDetails({ ...details, accountNumber: e.target.value }); setError(''); }}
           />
           <Input
             label="IFSC / Routing Number"
             placeholder="ABCD0123456"
             value={details.ifsc}
-            onChange={(e) => setDetails({ ...details, ifsc: e.target.value })}
+            onChange={(e) => { setDetails({ ...details, ifsc: e.target.value }); setError(''); }}
           />
-          {error && <p className="text-red-600 text-sm font-medium bg-red-50 p-2 rounded-lg text-center">{error}</p>}
+          {error && <p className="text-red-600 text-sm font-medium bg-red-50 p-2 rounded-lg text-center border border-red-100">{error}</p>}
           <button
             onClick={handleSendOtp}
-            className="w-full mt-4 bg-teal-600 hover:bg-teal-700 text-white py-3.5 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 shadow-lg shadow-teal-500/20"
+            className="w-full mt-4 bg-teal-600 hover:bg-teal-700 text-white py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-teal-500/20 active:scale-95"
           >
-            <Smartphone size={18} />
-            Verify with OTP
+            <Smartphone size={20} />
+            Continue to Verify
           </button>
+          <div className="flex items-center justify-center gap-2 text-slate-400 text-[10px] font-bold uppercase mt-4">
+              <ShieldCheck size={12} /> SECURE 256-BIT ENCRYPTION
+          </div>
         </div>
       ) : (
         <div className="space-y-6">
           <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-center shadow-inner">
-            <p className="text-slate-500 text-sm mb-2 font-medium">For testing purposes, your OTP is:</p>
-            <p className="text-4xl font-mono font-bold text-teal-600 tracking-[0.2em]">{generatedOtp}</p>
+            <p className="text-slate-400 text-[10px] font-black uppercase mb-2 tracking-widest">Bank Verification Code</p>
+            <p className="text-4xl font-mono font-bold text-teal-600 tracking-[0.3em]">{generatedOtp}</p>
           </div>
 
-          <Input
-            label="Enter OTP"
-            placeholder="XXXX"
-            value={inputOtp}
-            onChange={(e) => setInputOtp(e.target.value)}
-            className="text-center tracking-widest text-lg font-bold"
-          />
+          <div className="text-center">
+            <label className="block text-xs font-bold text-slate-500 uppercase mb-3">Enter OTP sent to linked mobile</label>
+            <input
+              type="text"
+              maxLength={4}
+              placeholder="0 0 0 0"
+              value={inputOtp}
+              onChange={(e) => { setInputOtp(e.target.value.replace(/\D/g, '')); setError(''); }}
+              className="w-full text-center tracking-[0.5em] text-3xl font-black p-4 bg-white border-2 border-slate-200 rounded-2xl focus:ring-4 focus:ring-teal-100 focus:border-teal-500 outline-none transition-all"
+            />
+          </div>
 
-          {error && <p className="text-red-600 text-sm text-center font-medium">{error}</p>}
+          {error && <p className="text-red-600 text-sm text-center font-bold">{error}</p>}
 
           <button
             onClick={handleVerify}
-            className="w-full bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white py-3.5 rounded-xl font-bold transition-transform transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg shadow-teal-500/20"
+            disabled={isVerifying || inputOtp.length < 4}
+            className="w-full bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white py-4 rounded-2xl font-bold transition-transform transform active:scale-95 flex items-center justify-center gap-2 shadow-xl shadow-teal-500/20 disabled:opacity-50"
           >
-            Verify & Continue
-            <ArrowRight size={18} />
+            {isVerifying ? <Loader2 className="animate-spin" /> : (
+                <>Link Account Securely <ArrowRight size={20} /></>
+            )}
           </button>
           
           <button 
              onClick={() => setStep('form')}
-             className="w-full text-slate-500 text-sm hover:text-slate-800 font-medium"
+             disabled={isVerifying}
+             className="w-full text-slate-400 text-sm hover:text-slate-600 font-bold transition-colors"
           >
-             Go Back
+             Edit Details
           </button>
         </div>
       )}

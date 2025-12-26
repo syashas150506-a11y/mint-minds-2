@@ -1,4 +1,6 @@
 
+export type Language = 'en' | 'hi' | 'kn' | 'te' | 'ta' | 'ml';
+
 export interface BankDetails {
   bankName: string;
   accountNumber: string;
@@ -24,6 +26,7 @@ export interface User {
   password?: string;
   createdAt?: string;
   isAdmin?: boolean;
+  language?: Language;
   
   // Extended Profile
   bankDetails?: BankDetails;

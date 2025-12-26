@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
-import { User } from '../../types';
+import { User, Language } from '../../types';
+import { TRANSLATIONS } from '../../translations';
 import { PROFESSIONS } from '../../constants';
 import { 
   Moon, Sun, Lock, User as UserIcon, RefreshCw, Save, Check, 
-  Globe, DollarSign, Smartphone, Briefcase, Eye, EyeOff 
+  Globe, DollarSign, Smartphone, Briefcase, Eye, EyeOff, Languages
 } from 'lucide-react';
 
 interface SettingsSectionProps {
@@ -12,6 +14,15 @@ interface SettingsSectionProps {
   toggleDarkMode: () => void;
   onUpdateUser: (data: Partial<User>) => void;
 }
+
+const LANGUAGES = [
+  { code: 'en', name: 'English', native: 'English' },
+  { code: 'hi', name: 'Hindi', native: 'हिन्दी' },
+  { code: 'kn', name: 'Kannada', native: 'ಕನ್ನಡ' },
+  { code: 'te', name: 'Telugu', native: 'తెలుగు' },
+  { code: 'ta', name: 'Tamil', native: 'தமிழ்' },
+  { code: 'ml', name: 'Malayalam', native: 'മലയാളം' },
+];
 
 const CURRENCIES = [
     { code: 'USD', name: 'US Dollar', rate: 1, symbol: '$' },
@@ -25,8 +36,12 @@ const CURRENCIES = [
 ];
 
 export const SettingsSection: React.FC<SettingsSectionProps> = ({ user, darkMode, toggleDarkMode, onUpdateUser }) => {
-  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'currency'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'currency' | 'language'>('profile');
   
+  // Translation helper
+  const lang = user.language || 'en';
+  const t = (key: string) => TRANSLATIONS[lang][key] || TRANSLATIONS['en'][key] || key;
+
   // Profile State
   const [profileData, setProfileData] = useState({
       name: user.name,
@@ -53,6 +68,10 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({ user, darkMode
       });
       setProfileSaved(true);
       setTimeout(() => setProfileSaved(false), 2000);
+  };
+
+  const handleLanguageChange = (newLang: Language) => {
+    onUpdateUser({ language: newLang });
   };
 
   const handlePasswordChange = () => {
@@ -86,7 +105,7 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({ user, darkMode
 
   return (
     <div className="max-w-5xl mx-auto animate-fade-in space-y-6">
-        <h2 className="text-3xl font-extrabold text-slate-800 dark:text-white mb-6">Settings</h2>
+        <h2 className="text-3xl font-extrabold text-slate-800 dark:text-white mb-6">{t('settings')}</h2>
 
         {/* Dark Mode Toggle Card */}
         <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
@@ -95,7 +114,7 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({ user, darkMode
                     {darkMode ? <Moon size={24} /> : <Sun size={24} />}
                 </div>
                 <div>
-                    <h3 className="font-bold text-slate-800 dark:text-white text-lg">Appearance</h3>
+                    <h3 className="font-bold text-slate-800 dark:text-white text-lg">{t('appearance')}</h3>
                     <p className="text-slate-500 dark:text-slate-400 text-sm">Switch between Light and Dark themes.</p>
                 </div>
             </div>
@@ -113,13 +132,16 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({ user, darkMode
             <div className="w-full md:w-64 bg-slate-50 dark:bg-slate-900/50 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 p-4">
                 <nav className="space-y-2">
                     <button onClick={() => setActiveTab('profile')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'profile' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                        <UserIcon size={20} /> Edit Profile
+                        <UserIcon size={20} /> {t('profile')}
+                    </button>
+                    <button onClick={() => setActiveTab('language')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'language' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                        <Languages size={20} /> {t('language')}
                     </button>
                     <button onClick={() => setActiveTab('password')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'password' ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                        <Lock size={20} /> Password
+                        <Lock size={20} /> {t('password')}
                     </button>
                     <button onClick={() => setActiveTab('currency')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'currency' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                        <Globe size={20} /> Currency Converter
+                        <Globe size={20} /> {t('currency')}
                     </button>
                 </nav>
             </div>
@@ -147,20 +169,36 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({ user, darkMode
                                     <input type="text" value={profileData.mobile} onChange={e => setProfileData({...profileData, mobile: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" />
                                 </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Profession</label>
-                                <div className="relative">
-                                    <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                    <select value={profileData.profession} onChange={e => setProfileData({...profileData, profession: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none appearance-none">
-                                        {PROFESSIONS.map(p => <option key={p} value={p}>{p}</option>)}
-                                    </select>
-                                </div>
-                            </div>
                         </div>
                         <button onClick={handleProfileSave} className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-blue-500/30">
                             {profileSaved ? <Check size={20} /> : <Save size={20} />}
-                            {profileSaved ? 'Saved!' : 'Save Changes'}
+                            {profileSaved ? 'Saved!' : t('saveChanges')}
                         </button>
+                    </div>
+                )}
+
+                {activeTab === 'language' && (
+                    <div className="max-w-md space-y-6 animate-fade-in">
+                        <div>
+                            <h3 className="text-xl font-bold mb-1">{t('language')}</h3>
+                            <p className="text-slate-500 text-sm">{t('selectLanguage')}</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            {LANGUAGES.map((l) => (
+                                <button
+                                    key={l.code}
+                                    onClick={() => handleLanguageChange(l.code as Language)}
+                                    className={`p-4 rounded-2xl border-2 text-left transition-all ${
+                                        (user.language || 'en') === l.code
+                                        ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
+                                        : 'border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-indigo-200'
+                                    }`}
+                                >
+                                    <p className="font-bold text-lg">{l.native}</p>
+                                    <p className="text-xs text-slate-500 uppercase tracking-wider">{l.name}</p>
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 )}
 
@@ -185,10 +223,6 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({ user, darkMode
                                     <input type={showPass ? "text" : "password"} value={passData.confirm} onChange={e => setPassData({...passData, confirm: e.target.value})} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none" />
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <input type="checkbox" id="showPass" checked={showPass} onChange={() => setShowPass(!showPass)} className="accent-rose-500" />
-                                <label htmlFor="showPass" className="text-sm text-slate-600 dark:text-slate-400">Show Password</label>
-                            </div>
                         </div>
                         {passMessage.text && (
                             <div className={`p-3 rounded-xl text-sm font-bold ${passMessage.type === 'error' ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'}`}>
@@ -196,7 +230,7 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({ user, darkMode
                             </div>
                         )}
                         <button onClick={handlePasswordChange} className="flex items-center gap-2 px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-rose-500/30">
-                            <Lock size={20} /> Update Password
+                            <Lock size={20} /> {t('updatePassword')}
                         </button>
                     </div>
                 )}

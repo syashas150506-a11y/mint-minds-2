@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { COUNTRIES, PROFESSIONS } from '../../constants';
 import { User, CountryData } from '../../types';
 import { Input } from '../UI/Input';
 import { CountrySelector } from '../UI/CountrySelector';
-import { ArrowLeft, Calendar, Loader2 } from 'lucide-react';
+import { ArrowLeft, Calendar, Loader2, Smartphone, ArrowRight } from 'lucide-react';
 import { userService } from '../../services/userService';
 
 interface SignupProps {
@@ -12,6 +13,7 @@ interface SignupProps {
 }
 
 export const Signup: React.FC<SignupProps> = ({ onSignup, onBack }) => {
+  const [step, setStep] = useState<'form' | 'otp'>('form');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -22,6 +24,10 @@ export const Signup: React.FC<SignupProps> = ({ onSignup, onBack }) => {
     gender: 'Male' as 'Male' | 'Female' | 'Other',
   });
 
+  // OTP State
+  const [generatedOtp, setGeneratedOtp] = useState<string>('');
+  const [inputOtp, setInputOtp] = useState('');
+  
   // DOB State
   const [dobDay, setDobDay] = useState('');
   const [dobMonth, setDobMonth] = useState('');
@@ -29,7 +35,7 @@ export const Signup: React.FC<SignupProps> = ({ onSignup, onBack }) => {
   
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<CountryData>(
-    COUNTRIES.find(c => c.code === "US") || COUNTRIES[0]
+    COUNTRIES.find(c => c.code === "IN") || COUNTRIES[0]
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [age, setAge] = useState<number | null>(null);
@@ -89,36 +95,97 @@ export const Signup: React.FC<SignupProps> = ({ onSignup, onBack }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleInitialSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validate() && age !== null) {
-      setIsLoading(true);
-      const monthIndex = months.indexOf(dobMonth) + 1;
-      const formattedDob = `${dobYear}-${monthIndex.toString().padStart(2, '0')}-${dobDay.padStart(2, '0')}`;
-
-      const user: User = {
-        name: formData.name,
-        email: formData.email,
-        mobile: formData.mobile,
-        countryCode: selectedCountry.dial_code,
-        dob: formattedDob,
-        age: age,
-        gender: formData.gender,
-        profession: formData.profession,
-        password: formData.password
-      };
-
-      try {
-        const newUser = await userService.register(user);
-        onSignup(newUser);
-      } catch (err: any) {
-        console.error("Signup error", err);
-        setErrors({ ...errors, general: err.message || "Failed to create account." });
-      } finally {
-        setIsLoading(false);
-      }
+      // Generate OTP and move to next step
+      const otp = Math.floor(1000 + Math.random() * 9000).toString();
+      setGeneratedOtp(otp);
+      setStep('otp');
     }
   };
+
+  const handleVerifyAndRegister = async () => {
+    if (inputOtp !== generatedOtp) {
+      setErrors({ ...errors, otp: "Invalid OTP. Please try again." });
+      return;
+    }
+
+    setIsLoading(true);
+    const monthIndex = months.indexOf(dobMonth) + 1;
+    const formattedDob = `${dobYear}-${monthIndex.toString().padStart(2, '0')}-${dobDay.padStart(2, '0')}`;
+
+    const user: User = {
+      name: formData.name,
+      email: formData.email,
+      mobile: formData.mobile,
+      countryCode: selectedCountry.dial_code,
+      dob: formattedDob,
+      age: age || 0,
+      gender: formData.gender,
+      profession: formData.profession,
+      password: formData.password,
+      language: 'en'
+    };
+
+    try {
+      const newUser = await userService.register(user);
+      onSignup(newUser);
+    } catch (err: any) {
+      console.error("Signup error", err);
+      setErrors({ ...errors, general: err.message || "Failed to create account." });
+      setStep('form'); // Send back to form if registration fails (e.g. duplicate)
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (step === 'otp') {
+    return (
+      <div className="w-full max-w-md p-8 glass-panel rounded-3xl shadow-xl animate-fade-in-up bg-white/90 border border-white/50">
+        <div className="flex items-center mb-6">
+          <button onClick={() => setStep('form')} disabled={isLoading} className="text-slate-500 hover:text-slate-800 transition-colors mr-3 p-2 hover:bg-slate-100 rounded-full">
+              <ArrowLeft size={20} />
+          </button>
+          <h2 className="text-2xl font-bold text-slate-800">
+            Verify Mobile
+          </h2>
+        </div>
+        
+        <div className="space-y-6">
+          <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 text-center shadow-inner">
+            <p className="text-emerald-700 text-sm mb-2 font-bold uppercase tracking-wider">Verification Code Sent</p>
+            <p className="text-slate-500 text-xs mb-3">Check your phone for the 4-digit code</p>
+            <p className="text-4xl font-mono font-bold text-emerald-600 tracking-[0.3em]">{generatedOtp}</p>
+          </div>
+
+          <div className="text-center">
+            <label className="block text-xs font-bold text-slate-400 uppercase mb-3">Enter 4-Digit OTP</label>
+            <input
+              type="text"
+              maxLength={4}
+              placeholder="0 0 0 0"
+              value={inputOtp}
+              onChange={(e) => setInputOtp(e.target.value.replace(/\D/g, ''))}
+              className="w-full text-center tracking-[0.5em] text-3xl font-black p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500 outline-none transition-all"
+            />
+          </div>
+
+          {errors.otp && <p className="text-red-600 text-sm text-center font-bold">{errors.otp}</p>}
+
+          <button
+            onClick={handleVerifyAndRegister}
+            disabled={isLoading || inputOtp.length < 4}
+            className="w-full text-white bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 font-bold rounded-2xl text-lg py-4 shadow-xl shadow-emerald-500/20 flex justify-center items-center gap-3 transition-all active:scale-95 disabled:opacity-50"
+          >
+            {isLoading ? <Loader2 className="animate-spin" size={24} /> : (
+              <>Verify & Create Account <ArrowRight size={20} /></>
+            )}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-xl p-8 glass-panel rounded-3xl shadow-xl animate-fade-in-up my-8 bg-white/90 border border-white/50">
@@ -131,7 +198,7 @@ export const Signup: React.FC<SignupProps> = ({ onSignup, onBack }) => {
         </h2>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleInitialSubmit} className="space-y-4">
         <Input
           label="Full Name"
           placeholder="John Doe"
@@ -294,9 +361,13 @@ export const Signup: React.FC<SignupProps> = ({ onSignup, onBack }) => {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full text-white bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 focus:ring-4 focus:outline-none focus:ring-emerald-200 font-bold rounded-xl text-sm px-5 py-3.5 text-center transition-all duration-300 transform hover:scale-[1.02] shadow-xl shadow-emerald-500/20 flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full text-white bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 focus:ring-4 focus:outline-none focus:ring-emerald-200 font-bold rounded-xl text-sm px-5 py-4 text-center transition-all duration-300 transform hover:scale-[1.02] shadow-xl shadow-emerald-500/20 flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          {isLoading ? <Loader2 className="animate-spin" size={20} /> : 'Create Account'}
+          {isLoading ? <Loader2 className="animate-spin" size={20} /> : (
+            <div className="flex items-center gap-2">
+                Continue to Verify <ArrowRight size={18} />
+            </div>
+          )}
         </button>
       </form>
     </div>

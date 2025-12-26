@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { 
     PieChart, PieChart as PieIcon, TrendingUp, Shield, Zap, Search, 
     ArrowRight, ArrowLeftRight, CheckCircle2, X, ExternalLink, Info, Loader2, Sparkles,
-    AlertTriangle 
+    AlertTriangle, RefreshCw
 } from 'lucide-react';
 import { getMutualFundAnalysis } from '../../services/geminiService';
 import ReactMarkdown from 'react-markdown';
@@ -27,7 +27,7 @@ interface Fund {
     fundSize: string; // AUM in Crores
 }
 
-const FUNDS_DATA: Fund[] = [
+const INITIAL_FUNDS: Fund[] = [
     { id: '1', name: 'Quant Small Cap Fund', category: 'Equity', subCategory: 'Small Cap', risk: 'High', rating: 5, returns: { '1Y': 45.2, '3Y': 38.5, '5Y': 28.1 }, expenseRatio: 0.77, minSIP: 1000, fundSize: '₹9,500 Cr' },
     { id: '2', name: 'HDFC Mid-Cap Opportunities', category: 'Equity', subCategory: 'Mid Cap', risk: 'High', rating: 4, returns: { '1Y': 32.1, '3Y': 24.5, '5Y': 18.2 }, expenseRatio: 0.95, minSIP: 500, fundSize: '₹45,000 Cr' },
     { id: '3', name: 'Parag Parikh Flexi Cap', category: 'Equity', subCategory: 'Flexi Cap', risk: 'Moderate', rating: 5, returns: { '1Y': 22.5, '3Y': 19.8, '5Y': 17.5 }, expenseRatio: 0.82, minSIP: 1000, fundSize: '₹55,000 Cr' },
@@ -61,12 +61,14 @@ export const MutualFunds: React.FC = () => {
     const [selectedCategory, setSelectedCategory] = useState<string>('All');
     const [compareList, setCompareList] = useState<string[]>([]);
     const [showComparison, setShowComparison] = useState(false);
+    const [funds, setFunds] = useState<Fund[]>(INITIAL_FUNDS);
+    const [isRefreshing, setIsRefreshing] = useState(false);
     
     // AI Insights
     const [aiInsight, setAiInsight] = useState<string | null>(null);
     const [loadingAi, setLoadingAi] = useState(false);
 
-    const filteredFunds = FUNDS_DATA.filter(fund => {
+    const filteredFunds = funds.filter(fund => {
         const matchesSearch = fund.name.toLowerCase().includes(searchTerm.toLowerCase()) || fund.subCategory.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesCategory = selectedCategory === 'All' || fund.category === selectedCategory;
         return matchesSearch && matchesCategory;
@@ -84,6 +86,24 @@ export const MutualFunds: React.FC = () => {
         }
     };
 
+    const handleRefresh = () => {
+        setIsRefreshing(true);
+        setTimeout(() => {
+            setFunds(prev => prev.map(f => {
+                const fluctuation = 1 + (Math.random() - 0.5) * 0.01;
+                return {
+                    ...f,
+                    returns: {
+                        '1Y': parseFloat((f.returns['1Y'] * fluctuation).toFixed(1)),
+                        '3Y': parseFloat((f.returns['3Y'] * fluctuation).toFixed(1)),
+                        '5Y': parseFloat((f.returns['5Y'] * fluctuation).toFixed(1)),
+                    }
+                };
+            }));
+            setIsRefreshing(false);
+        }, 1000);
+    };
+
     const fetchAiInsight = async (category: string) => {
         setLoadingAi(true);
         const text = await getMutualFundAnalysis(category);
@@ -94,7 +114,7 @@ export const MutualFunds: React.FC = () => {
     // Render Components
 
     const renderComparisonOverlay = () => {
-        const fundsToCompare = FUNDS_DATA.filter(f => compareList.includes(f.id));
+        const fundsToCompare = funds.filter(f => compareList.includes(f.id));
         
         return (
             <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
@@ -171,14 +191,24 @@ export const MutualFunds: React.FC = () => {
             {showComparison && renderComparisonOverlay()}
 
             {/* Header */}
-            <div className="text-center">
-                <h2 className="text-3xl font-extrabold text-slate-800 mb-4 flex items-center justify-center gap-3">
-                    <div className="p-3 bg-indigo-100 rounded-2xl text-indigo-600 shadow-sm"><PieIcon size={32} /></div>
-                    Mutual Fund Explorer
-                </h2>
-                <p className="text-slate-500 max-w-2xl mx-auto text-lg">
-                    Discover, analyze, and compare top-performing mutual funds across various categories.
-                </p>
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div className="text-center md:text-left">
+                    <h2 className="text-3xl font-extrabold text-slate-800 mb-2 flex items-center justify-center md:justify-start gap-3">
+                        <div className="p-3 bg-indigo-100 rounded-2xl text-indigo-600 shadow-sm"><PieIcon size={32} /></div>
+                        Mutual Fund Explorer
+                    </h2>
+                    <p className="text-slate-500 max-w-2xl text-lg font-medium">
+                        Discover top-performing mutual funds and SIP options.
+                    </p>
+                </div>
+                <button 
+                    onClick={handleRefresh} 
+                    disabled={isRefreshing}
+                    className="flex items-center gap-2 bg-white border border-slate-200 px-6 py-3 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 hover:border-indigo-300 transition-all shadow-sm group"
+                >
+                    <RefreshCw size={18} className={`text-indigo-600 ${isRefreshing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
+                    {isRefreshing ? 'Updating Data...' : 'Refresh Navs'}
+                </button>
             </div>
 
             {/* Categories & AI Insight */}
